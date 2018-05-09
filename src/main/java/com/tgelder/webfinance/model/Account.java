@@ -1,6 +1,7 @@
 package com.tgelder.webfinance.model;
 
 import lombok.Data;
+import javax.validation.constraints.NotNull;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,6 +14,7 @@ public class Account {
   @Id
   @GeneratedValue
   private Long id;
+  @NotNull
   private String name;
 
   public Account(String name) {
