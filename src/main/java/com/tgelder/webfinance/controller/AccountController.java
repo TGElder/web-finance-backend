@@ -4,9 +4,11 @@ import com.tgelder.webfinance.model.Account;
 import com.tgelder.webfinance.persistence.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
+import java.net.URI;
 
 @RestController
 @RequestMapping("/accounts")
@@ -32,9 +34,12 @@ public class AccountController {
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/")
-  ResponseEntity<Account> addAccount(@RequestBody @Valid Account account) {
+  ResponseEntity<Account> addAccount(@RequestBody @Validated(Account.PostValidation.class) Account account) {
     Account result = accountRepository.save(account);
-    return ResponseEntity.ok(result);
+    URI location = ServletUriComponentsBuilder
+            .fromCurrentRequest().path("/{id}")
+            .buildAndExpand(result.getId()).toUri();
+    return ResponseEntity.created(location).build();
   }
 
 }
