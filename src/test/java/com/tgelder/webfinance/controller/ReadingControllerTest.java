@@ -52,8 +52,8 @@ public class ReadingControllerTest {
 
   private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  private String dateString = "2018-05-14T18:03:07.537Z";
-  private final Date testDate = Date.from(Instant.parse(dateString));
+  private String testDateString = "2018-05-14T18:03:07.537Z";
+  private final Date testDate = Date.from(Instant.parse(testDateString));
 
   private List<Account> testAccounts = ImmutableList.of(
           new Account("savings"),
@@ -79,9 +79,9 @@ public class ReadingControllerTest {
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
            .andExpect(jsonPath("$.id", is(testReadings.get(0).getId().intValue())))
-           .andExpect(jsonPath("$.account.name", is("savings")))
+           .andExpect(jsonPath("$.account", is("savings")))
            .andExpect(jsonPath("$.amount", is(12345)))
-           .andExpect(jsonPath("$.date", is(dateString)));
+           .andExpect(jsonPath("$.date", is(testDateString)));
   }
 //
 //  @Test
