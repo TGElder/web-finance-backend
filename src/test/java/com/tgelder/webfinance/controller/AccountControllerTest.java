@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.tgelder.webfinance.App;
 import com.tgelder.webfinance.model.Account;
 import com.tgelder.webfinance.persistence.AccountRepository;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,8 +58,12 @@ public class AccountControllerTest {
   @Before
   public void setup() {
     mockMvc = webAppContextSetup(webApplicationContext).build();
-    accountRepository.deleteAll();
     accountRepository.saveAll(testAccounts);
+  }
+
+  @After
+  public void tearDown() {
+    accountRepository.deleteAll();
   }
 
   @Test
@@ -97,9 +102,9 @@ public class AccountControllerTest {
   public void testPostAccountWithFieldMissing() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of("other", "field"));
 
-    MvcResult result = mockMvc.perform(post("/accounts/").contentType(contentType).content(json))
-                              .andExpect(status().is4xxClientError())
-                              .andReturn();
+    mockMvc.perform(post("/accounts/").contentType(contentType).content(json))
+           .andExpect(status().is4xxClientError())
+           .andReturn();
   }
 
   @SuppressWarnings("ConstantConditions")

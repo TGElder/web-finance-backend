@@ -1,12 +1,11 @@
 package com.tgelder.webfinance.controller;
 
-import com.tgelder.webfinance.model.Account;
+import com.tgelder.webfinance.model.Transfer;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/accounts")
-public class AccountController extends GenericController<Account> {
-
+@RequestMapping("/transfers")
+public class TransferController extends GenericController<Transfer> {
 
 }

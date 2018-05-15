@@ -1,44 +1,34 @@
 package com.tgelder.webfinance.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tgelder.webfinance.controller.GenericController;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import java.util.Date;
 
 @Entity
 @Data
-public class Reading {
+@EqualsAndHashCode(callSuper = true)
+public class Reading extends Identifiable {
 
-  @Id
-  @GeneratedValue
-  @Null(groups = {Account.PostValidation.class})
-  private Long id;
   @ManyToOne
-  @NotNull(groups = {Account.PostValidation.class})
+  @NotNull(groups = {GenericController.PostValidation.class})
   private Account account;
-  @NotNull(groups = {Account.PostValidation.class})
-  private long amount;
-  @NotNull(groups = {Account.PostValidation.class})
-  @Temporal(TemporalType.TIMESTAMP)
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-  private Date date; // Java 8 DateTime not supported in current Spring (needs JPA 2.2)
+  @NotNull(groups = {GenericController.PostValidation.class})
+  private Long amount;
+  @NotNull(groups = {GenericController.PostValidation.class})
+  private Long epochSecond;
 
-  public Reading(Account account, long amount, Date date) {
+  public Reading(Account account, Long amount, Long epochSecond) {
     this.account = account;
     this.amount = amount;
-    this.date = date;
+    this.epochSecond = epochSecond;
   }
 
   // Required by JPA
   Reading() {
-
-  }
-
-  // For validation groups
-  public interface PostValidation {
 
   }
 

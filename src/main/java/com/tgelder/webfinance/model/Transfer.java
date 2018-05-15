@@ -1,34 +1,37 @@
 package com.tgelder.webfinance.model;
 
+import com.tgelder.webfinance.controller.GenericController;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import java.util.Date;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
-public class Transfer {
+@EqualsAndHashCode(callSuper = true)
+public class Transfer extends Identifiable {
 
-  @Id
-  @GeneratedValue
-  private Long id;
   @ManyToOne
+  @NotNull(groups = {GenericController.PostValidation.class})
   private Account from;
   @ManyToOne
+  @NotNull(groups = {GenericController.PostValidation.class})
   private Account to;
+  @NotNull(groups = {GenericController.PostValidation.class})
   private String what;
-  private long amount;
-  private Date added; // Java 8 DateTime not supported in current Spring (needs JPA 2.2)
+  @NotNull(groups = {GenericController.PostValidation.class})
+  private Long amount;
+  @NotNull(groups = {GenericController.PostValidation.class})
+  private Long epochSecond;
 
-  public Transfer(Account from, Account to, String what, long amount, Date added) {
+  public Transfer(Account from, Account to, String what, Long amount, Long epochSecond) {
     this.from = from;
     this.to = to;
     this.what = what;
     this.amount = amount;
-    this.added = added;
+    this.epochSecond = epochSecond;
   }
 
   // Required by JPA

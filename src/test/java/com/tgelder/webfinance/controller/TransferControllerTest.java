@@ -5,9 +5,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.tgelder.webfinance.App;
 import com.tgelder.webfinance.model.Account;
-import com.tgelder.webfinance.model.Reading;
+import com.tgelder.webfinance.model.Transfer;
 import com.tgelder.webfinance.persistence.AccountRepository;
-import com.tgelder.webfinance.persistence.ReadingRepository;
+import com.tgelder.webfinance.persistence.TransferRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,13 +36,13 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @SpringBootTest(classes = App.class)
 @WebAppConfiguration
 @ActiveProfiles(profiles = "test")
-public class ReadingControllerTest {
+public class TransferControllerTest {
 
 
   @Autowired
   private AccountRepository accountRepository;
   @Autowired
-  private ReadingRepository readingRepository;
+  private TransferRepository transferRepository;
 
   private MockMvc mockMvc;
 
@@ -60,84 +60,103 @@ public class ReadingControllerTest {
           new Account("personal")
   );
 
-  private List<Reading> testReadings = ImmutableList.of(
-          new Reading(testAccounts.get(0), 12345L, 60L),
-          new Reading(testAccounts.get(1), 2345L, 61L));
+  private List<Transfer> testTransfers = ImmutableList.of(
+          new Transfer(testAccounts.get(0),
+                       testAccounts.get(1),
+                       "holiday",
+                       12345L,
+                       60L),
+          new Transfer(testAccounts.get(1),
+                       testAccounts.get(0),
+                       "bonus",
+                       543L,
+                       61L));
 
   @Before
   public void setup() {
     mockMvc = webAppContextSetup(webApplicationContext).build();
     accountRepository.saveAll(testAccounts);
-    readingRepository.saveAll(testReadings);
+    transferRepository.saveAll(testTransfers);
   }
 
   @After
   public void tearDown() {
-    readingRepository.deleteAll();
+    transferRepository.deleteAll();
     accountRepository.deleteAll();
   }
 
   @Test
-  public void testGetReading() throws Exception {
-    mockMvc.perform(get("/readings/" + testReadings.get(0).getId()))
+  public void testGetTransfer() throws Exception {
+    mockMvc.perform(get("/transfers/" + testTransfers.get(0).getId()))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
-           .andExpect(jsonPath("$.id", is(testReadings.get(0).getId().intValue())))
-           .andExpect(jsonPath("$.account.name", is("savings")))
+           .andExpect(jsonPath("$.id", is(testTransfers.get(0).getId().intValue())))
+           .andExpect(jsonPath("$.from.name", is("savings")))
+           .andExpect(jsonPath("$.to.name", is("personal")))
+           .andExpect(jsonPath("$.what", is("holiday")))
            .andExpect(jsonPath("$.amount", is(12345)))
            .andExpect(jsonPath("$.epochSecond", is(60)));
   }
 
   @Test
-  public void testGetReadings() throws Exception {
-    mockMvc.perform(get("/readings/"))
+  public void testGetTransfers() throws Exception {
+    mockMvc.perform(get("/transfers/"))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
-           .andExpect(jsonPath("$.[*].account.name", containsInAnyOrder("savings", "personal")));
+           .andExpect(jsonPath("$.[*].amount", containsInAnyOrder(12345, 543)));
   }
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testPostReading() throws Exception {
+  public void testPostTransfer() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
-            ImmutableMap.of("account", ImmutableMap.of("id", testAccounts.get(0).getId()),
-                            "amount", 1234,
-                            "epochSecond", 70));
+            ImmutableMap.of("from", ImmutableMap.of("id", testAccounts.get(0).getId()),
+                            "to", ImmutableMap.of("id", testAccounts.get(1).getId()),
+                            "what", "gift",
+                            "amount", 777,
+                            "epochSecond", 80));
 
-    MvcResult result = mockMvc.perform(post("/readings/").contentType(contentType).content(json))
+    MvcResult result = mockMvc.perform(post("/transfers/").contentType(contentType).content(json))
                               .andExpect(status().isCreated())
                               .andReturn();
 
     mockMvc.perform(get(result.getResponse().getHeader("Location")))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
-           .andExpect(jsonPath("$.account.id", is(testAccounts.get(0).getId().intValue())))
-           .andExpect(jsonPath("$.account.name", is("savings")))
-           .andExpect(jsonPath("$.amount", is(1234)))
-           .andExpect(jsonPath("$.epochSecond", is(70)));
+           .andExpect(jsonPath("$.from.name", is("savings")))
+           .andExpect(jsonPath("$.to.name", is("personal")))
+           .andExpect(jsonPath("$.what", is("gift")))
+           .andExpect(jsonPath("$.amount", is(777)))
+           .andExpect(jsonPath("$.epochSecond", is(80)));
   }
 
   @Test
-  public void testPostReadingWithFieldMissing() throws Exception {
+  public void testPostTransferWithFieldMissing() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
-            ImmutableMap.of("account", ImmutableMap.of("id", testAccounts.get(0).getId()),
-                            "amount", 1234));
+            ImmutableMap.of("from", ImmutableMap.of("id", testAccounts.get(0).getId()),
+                            "to", ImmutableMap.of("id", testAccounts.get(1).getId()),
+                            "amount", 777,
+                            "epochSecond", 80));
 
-    mockMvc.perform(post("/readings/").contentType(contentType).content(json))
+    mockMvc.perform(post("/transfers/").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
   }
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testPostReadingWithExtraField() throws Exception {
+  public void testPostTransferWithExtraField() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
-            ImmutableMap.of("account", ImmutableMap.of("id", testAccounts.get(0).getId()),
-                            "amount", 1234,
-                            "epochSecond", 70,
-                            "extra", "field"));
+            ImmutableMap.builder()
+                        .put("from", ImmutableMap.of("id", testAccounts.get(0).getId()))
+                        .put("to", ImmutableMap.of("id", testAccounts.get(1).getId()))
+                        .put("what", "gift")
+                        .put("amount", 777)
+                        .put("epochSecond", 80)
+                        .put("extra", "field")
+                        .build());
 
-    MvcResult result = mockMvc.perform(post("/readings/").contentType(contentType).content(json))
+    MvcResult result = mockMvc.perform(post("/transfers/").contentType(contentType).content(json))
                               .andExpect(status().isCreated())
                               .andReturn();
 
@@ -148,14 +167,18 @@ public class ReadingControllerTest {
   }
 
   @Test
-  public void testPostReadingShouldNotAcceptProvidedId() throws Exception {
+  public void testPostTransferShouldNotAcceptProvidedId() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
-            ImmutableMap.of("id", 1,
-                            "account", ImmutableMap.of("id", testAccounts.get(0).getId()),
-                            "amount", 1234,
-                            "epochSecond", 70));
+            ImmutableMap.builder()
+                        .put("id", 1)
+                        .put("from", ImmutableMap.of("id", testAccounts.get(0).getId()))
+                        .put("to", ImmutableMap.of("id", testAccounts.get(1).getId()))
+                        .put("what", "gift")
+                        .put("amount", 777)
+                        .put("epochSecond", 80)
+                        .build());
 
-    mockMvc.perform(post("/readings/").contentType(contentType).content(json))
+    mockMvc.perform(post("/transfers/").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
 

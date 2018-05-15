@@ -1,22 +1,18 @@
 package com.tgelder.webfinance.model;
 
+import com.tgelder.webfinance.controller.GenericController;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 
 @Entity
 @Data
-public class Account {
+@EqualsAndHashCode(callSuper = true)
+public class Account extends Identifiable {
 
-  @Id
-  @GeneratedValue
-  @Null(groups = {PostValidation.class})
-  private Long id;
-  @NotNull(groups = {PostValidation.class})
+  @NotNull(groups = {GenericController.PostValidation.class})
   private String name;
 
   public Account(String name) {
@@ -25,11 +21,6 @@ public class Account {
 
   // Required by JPA
   public Account() {
-
-  }
-
-  // For validation groups
-  public interface PostValidation {
 
   }
 
