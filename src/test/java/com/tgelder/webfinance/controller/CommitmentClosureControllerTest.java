@@ -27,8 +27,8 @@ import org.springframework.web.context.WebApplicationContext;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -105,22 +105,20 @@ public class CommitmentClosureControllerTest {
   }
 
   @Test
-  public void testGetCommitmentClosure() throws Exception {
-    mockMvc.perform(get("/commitments/closures/" + testCommitmentClosures.get(0).getId()))
+  public void testGetCommitmentWithClosure() throws Exception {
+    mockMvc.perform(get("/commitments/" + testCommitments.get(0).getId()))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
-           .andExpect(jsonPath("$.id", is(testCommitmentClosures.get(0).getId().intValue())))
-           .andExpect(jsonPath("$.commitment.id", is(testCommitments.get(0).getId().intValue())))
-           .andExpect(jsonPath("$.commitment.from.id", is(testAccounts.get(0).getId().intValue())))
-           .andExpect(jsonPath("$.epochSecond", is(62)));
+           .andExpect(jsonPath("$.closure.id", is(testCommitmentClosures.get(0).getId().intValue())))
+           .andExpect(jsonPath("$.closure.epochSecond", is(62)));
   }
 
   @Test
-  public void testGetCommitmentClosures() throws Exception {
-    mockMvc.perform(get("/commitments/closures/"))
+  public void testGetCommitmentWithoutClosure() throws Exception {
+    mockMvc.perform(get("/commitments/" + testCommitments.get(2).getId()))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
-           .andExpect(jsonPath("$.[*].commitment.amount", containsInAnyOrder(12345, 543)));
+           .andExpect(jsonPath("$.closure", isEmptyOrNullString()));
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -130,16 +128,14 @@ public class CommitmentClosureControllerTest {
             ImmutableMap.of("commitment", ImmutableMap.of("id", testCommitments.get(2).getId()),
                             "epochSecond", 64));
 
-    MvcResult result = mockMvc.perform(post("/commitments/closures/").contentType(contentType).content(json))
+    MvcResult result = mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
                               .andExpect(status().isCreated())
                               .andReturn();
 
-    mockMvc.perform(get(result.getResponse().getHeader("Location")))
+    mockMvc.perform(get("/commitments/" + testCommitments.get(2).getId()))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
-           .andExpect(jsonPath("$.commitment.id", is(testCommitments.get(2).getId().intValue())))
-           .andExpect(jsonPath("$.commitment.from.id", is(testAccounts.get(0).getId().intValue())))
-           .andExpect(jsonPath("$.epochSecond", is(64)));
+           .andExpect(jsonPath("$.closure.epochSecond", is(64)));
   }
 
   @Test
@@ -148,7 +144,7 @@ public class CommitmentClosureControllerTest {
             ImmutableMap.of("commitment", ImmutableMap.of("id", testCommitments.get(0).getId()),
                             "epochSecond", 64));
 
-    mockMvc.perform(post("/commitments/closures/").contentType(contentType).content(json))
+    mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
   }
@@ -158,7 +154,7 @@ public class CommitmentClosureControllerTest {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("commitment", ImmutableMap.of("id", testCommitments.get(2).getId())));
 
-    mockMvc.perform(post("/commitments/closures/").contentType(contentType).content(json))
+    mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
   }
@@ -171,14 +167,14 @@ public class CommitmentClosureControllerTest {
                             "epochSecond", 64,
                             "extra", "field"));
 
-    MvcResult result = mockMvc.perform(post("/commitments/closures/").contentType(contentType).content(json))
+    MvcResult result = mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
                               .andExpect(status().isCreated())
                               .andReturn();
 
-    mockMvc.perform(get(result.getResponse().getHeader("Location")))
+    mockMvc.perform(get("/commitments/" + testCommitments.get(2).getId()))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
-           .andExpect(jsonPath("$.extra").doesNotExist());
+           .andExpect(jsonPath("$.closure.epochSecond", is(64)));
   }
 
   @Test
@@ -189,7 +185,7 @@ public class CommitmentClosureControllerTest {
                             "epochSecond", 64));
 
 
-    mockMvc.perform(post("/commitments/closures/").contentType(contentType).content(json))
+    mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
 

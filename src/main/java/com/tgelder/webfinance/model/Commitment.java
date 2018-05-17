@@ -1,11 +1,13 @@
 package com.tgelder.webfinance.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.tgelder.webfinance.controller.GenericController;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -25,6 +27,9 @@ public class Commitment extends Identifiable {
   private Long amount;
   @NotNull(groups = {GenericController.PostValidation.class})
   private Long epochSecond;
+  @OneToOne(mappedBy = "commitment")
+  @JsonManagedReference
+  private CommitmentClosure closure;
 
   public Commitment(Account from, Account to, String what, Long amount, Long epochSecond) {
     this.from = from;
