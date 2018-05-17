@@ -1,27 +1,27 @@
 package com.tgelder.webfinance.model;
 
+import com.tgelder.webfinance.controller.GenericController;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
-import java.util.Date;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
-public class CommitmentClosure {
+@EqualsAndHashCode(callSuper = true)
+public class CommitmentClosure extends Identifiable {
 
-  @Id
-  private long id;
-  @MapsId
   @OneToOne
+  @NotNull(groups = {GenericController.PostValidation.class})
   private Commitment commitment;
-  private Date closed;
+  @NotNull(groups = {GenericController.PostValidation.class})
+  private Long epochSecond;
 
-  public CommitmentClosure(Commitment commitment, Date closed) {
+  public CommitmentClosure(Commitment commitment, Long epochSecond) {
     this.commitment = commitment;
-    this.closed = closed;
+    this.epochSecond = epochSecond;
   }
 
   // Required by JPA
