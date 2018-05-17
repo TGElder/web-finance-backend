@@ -16,7 +16,7 @@ import java.net.URI;
 public class GenericController<T extends Identifiable> {
 
   @Autowired
-  private CrudRepository<T, Long> repository;
+  CrudRepository<T, Long> repository;
 
   @RequestMapping(method = RequestMethod.GET, value = "/{id}")
   ResponseEntity<T> get(@PathVariable Long id) {

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotNull;
 public class CommitmentClosure extends Identifiable {
 
   @OneToOne
+  @JoinColumn(name = "commitment_id", unique = true)
   @NotNull(groups = {GenericController.PostValidation.class})
   private Commitment commitment;
   @NotNull(groups = {GenericController.PostValidation.class})
