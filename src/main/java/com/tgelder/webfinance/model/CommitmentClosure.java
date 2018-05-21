@@ -1,7 +1,7 @@
 package com.tgelder.webfinance.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.tgelder.webfinance.controller.GenericController;
+import com.tgelder.webfinance.controller.GenericGetPostController;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,9 +16,9 @@ public class CommitmentClosure extends Identifiable {
 
   @OneToOne
   @JsonBackReference
-  @NotNull(groups = {GenericController.PostValidation.class})
+  @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private Commitment commitment;
-  @NotNull(groups = {GenericController.PostValidation.class})
+  @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private Long epochSecond;
 
   public CommitmentClosure(Commitment commitment, Long epochSecond) {

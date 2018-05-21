@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/readings")
-public class ReadingController extends GenericController<Reading> {
+public class ReadingController extends GenericGetPostController<Reading> {
 
 }

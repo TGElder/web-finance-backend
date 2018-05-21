@@ -13,10 +13,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
-public class GenericController<T extends Identifiable> {
+public class GenericGetPostController<T extends Identifiable> {
 
   @Autowired
-  CrudRepository<T, Long> repository;
+  private CrudRepository<T, Long> repository;
 
   @RequestMapping(method = RequestMethod.GET, value = "/{id}")
   ResponseEntity<T> get(@PathVariable Long id) {

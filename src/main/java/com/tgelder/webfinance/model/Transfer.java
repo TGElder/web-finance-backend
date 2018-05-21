@@ -1,6 +1,6 @@
 package com.tgelder.webfinance.model;
 
-import com.tgelder.webfinance.controller.GenericController;
+import com.tgelder.webfinance.controller.GenericGetPostController;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -14,16 +14,16 @@ import javax.validation.constraints.NotNull;
 public class Transfer extends Identifiable {
 
   @ManyToOne
-  @NotNull(groups = {GenericController.PostValidation.class})
+  @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private Account from;
   @ManyToOne
-  @NotNull(groups = {GenericController.PostValidation.class})
+  @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private Account to;
-  @NotNull(groups = {GenericController.PostValidation.class})
+  @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private String what;
-  @NotNull(groups = {GenericController.PostValidation.class})
+  @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private Long amount;
-  @NotNull(groups = {GenericController.PostValidation.class})
+  @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private Long epochSecond;
 
   public Transfer(Account from, Account to, String what, Long amount, Long epochSecond) {

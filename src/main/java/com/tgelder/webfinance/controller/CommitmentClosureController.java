@@ -22,7 +22,7 @@ public class CommitmentClosureController {
   private CrudRepository<CommitmentClosure, Long> repository;
 
   @RequestMapping(method = RequestMethod.POST, value = "/")
-  ResponseEntity<CommitmentClosure> post(@RequestBody @Validated(GenericController.PostValidation.class) CommitmentClosure commitmentClosure) {
+  ResponseEntity<CommitmentClosure> post(@RequestBody @Validated(GenericGetPostController.PostValidation.class) CommitmentClosure commitmentClosure) {
     if (!((CommitmentClosureRepository) repository).findByCommitment(commitmentClosure.getCommitment()).isEmpty()) {
       return ResponseEntity.badRequest().build();
     }

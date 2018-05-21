@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/commitments")
-public class CommitmentController extends GenericController<Commitment> {
+public class CommitmentController extends GenericGetPostController<Commitment> {
 
 }

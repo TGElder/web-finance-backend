@@ -1,6 +1,6 @@
 package com.tgelder.webfinance.model;
 
-import com.tgelder.webfinance.controller.GenericController;
+import com.tgelder.webfinance.controller.GenericGetPostController;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode(callSuper = true)
 public class Account extends Identifiable {
 
-  @NotNull(groups = {GenericController.PostValidation.class})
+  @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private String name;
 
   public Account(String name) {

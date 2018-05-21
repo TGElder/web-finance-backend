@@ -1,6 +1,6 @@
 package com.tgelder.webfinance.model;
 
-import com.tgelder.webfinance.controller.GenericController;
+import com.tgelder.webfinance.controller.GenericGetPostController;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -14,7 +14,7 @@ public class Identifiable {
 
   @Id
   @GeneratedValue
-  @Null(groups = {GenericController.PostValidation.class})
+  @Null(groups = {GenericGetPostController.PostValidation.class})
   private Long id;
 
 }

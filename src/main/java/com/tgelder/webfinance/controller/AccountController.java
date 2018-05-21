@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/accounts")
-public class AccountController extends GenericController<Account> {
+public class AccountController extends GenericGetPostController<Account> {
 
 
 }

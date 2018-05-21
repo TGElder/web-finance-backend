@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/transfers")
-public class TransferController extends GenericController<Transfer> {
+public class TransferController extends GenericGetPostController<Transfer> {
 
 }

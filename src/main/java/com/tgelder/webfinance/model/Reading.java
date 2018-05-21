@@ -1,6 +1,6 @@
 package com.tgelder.webfinance.model;
 
-import com.tgelder.webfinance.controller.GenericController;
+import com.tgelder.webfinance.controller.GenericGetPostController;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -14,11 +14,11 @@ import javax.validation.constraints.NotNull;
 public class Reading extends Identifiable {
 
   @ManyToOne
-  @NotNull(groups = {GenericController.PostValidation.class})
+  @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private Account account;
-  @NotNull(groups = {GenericController.PostValidation.class})
+  @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private Long amount;
-  @NotNull(groups = {GenericController.PostValidation.class})
+  @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private Long epochSecond;
 
   public Reading(Account account, Long amount, Long epochSecond) {
