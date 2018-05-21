@@ -78,7 +78,7 @@ public class ReadingControllerTest {
   }
 
   @Test
-  public void testGetReading() throws Exception {
+  public void shouldGetReading() throws Exception {
     mockMvc.perform(get("/readings/" + testReadings.get(0).getId()))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
@@ -89,7 +89,7 @@ public class ReadingControllerTest {
   }
 
   @Test
-  public void testGetReadings() throws Exception {
+  public void shouldGetReadings() throws Exception {
     mockMvc.perform(get("/readings/"))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
@@ -98,7 +98,7 @@ public class ReadingControllerTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testPostReading() throws Exception {
+  public void shouldPostReading() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("account", ImmutableMap.of("id", testAccounts.get(0).getId()),
                             "amount", 1234,
@@ -118,7 +118,7 @@ public class ReadingControllerTest {
   }
 
   @Test
-  public void testPostReadingWithFieldMissing() throws Exception {
+  public void shouldRejectReadingWithFieldMissing() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("account", ImmutableMap.of("id", testAccounts.get(0).getId()),
                             "amount", 1234));
@@ -130,7 +130,7 @@ public class ReadingControllerTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testPostReadingWithExtraField() throws Exception {
+  public void shouldIgnoreExtraFieldInReading() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("account", ImmutableMap.of("id", testAccounts.get(0).getId()),
                             "amount", 1234,
@@ -148,7 +148,7 @@ public class ReadingControllerTest {
   }
 
   @Test
-  public void testPostReadingShouldNotAcceptProvidedId() throws Exception {
+  public void shouldRejectReadingWithProvidedId() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("id", 1,
                             "account", ImmutableMap.of("id", testAccounts.get(0).getId()),

@@ -67,7 +67,7 @@ public class AccountControllerTest {
   }
 
   @Test
-  public void testGetAccount() throws Exception {
+  public void shouldGetAccount() throws Exception {
     mockMvc.perform(get("/accounts/" + testAccounts.get(0).getId()))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
@@ -76,7 +76,7 @@ public class AccountControllerTest {
   }
 
   @Test
-  public void testGetAccounts() throws Exception {
+  public void shouldGetAccounts() throws Exception {
     mockMvc.perform(get("/accounts/"))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
@@ -85,7 +85,7 @@ public class AccountControllerTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testPostAccount() throws Exception {
+  public void shouldPostAccount() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of("name", "new"));
 
     MvcResult result = mockMvc.perform(post("/accounts/").contentType(contentType).content(json))
@@ -99,7 +99,7 @@ public class AccountControllerTest {
   }
 
   @Test
-  public void testPostAccountWithFieldMissing() throws Exception {
+  public void shouldRejectAccountWithMissingFields() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of("other", "field"));
 
     mockMvc.perform(post("/accounts/").contentType(contentType).content(json))
@@ -109,7 +109,7 @@ public class AccountControllerTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testPostAccountWithExtraField() throws Exception {
+  public void shouldIgnoreExtraFieldsInAccount() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of("name", "new", "extra", "field"));
 
     MvcResult result = mockMvc.perform(post("/accounts/").contentType(contentType).content(json))
@@ -123,12 +123,12 @@ public class AccountControllerTest {
   }
 
   @Test
-  public void testPostAccountShouldNotAcceptProvidedId() throws Exception {
+  public void shouldNotAcceptAccountWithProvidedId() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of("id", 1, "name", "new"));
 
-    MvcResult result = mockMvc.perform(post("/accounts/").contentType(contentType).content(json))
-                              .andExpect(status().is4xxClientError())
-                              .andReturn();
+    mockMvc.perform(post("/accounts/").contentType(contentType).content(json))
+           .andExpect(status().is4xxClientError())
+           .andReturn();
 
   }
 

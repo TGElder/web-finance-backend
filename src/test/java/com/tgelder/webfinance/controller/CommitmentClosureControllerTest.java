@@ -21,7 +21,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.Charset;
@@ -105,7 +104,7 @@ public class CommitmentClosureControllerTest {
   }
 
   @Test
-  public void testGetCommitmentWithClosure() throws Exception {
+  public void shouldShowClosureOnCommitmentWithClosure() throws Exception {
     mockMvc.perform(get("/commitments/" + testCommitments.get(0).getId()))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
@@ -114,7 +113,7 @@ public class CommitmentClosureControllerTest {
   }
 
   @Test
-  public void testGetCommitmentWithoutClosure() throws Exception {
+  public void shouldShowNullOnCommitmentWithNoClosure() throws Exception {
     mockMvc.perform(get("/commitments/" + testCommitments.get(2).getId()))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
@@ -128,9 +127,9 @@ public class CommitmentClosureControllerTest {
             ImmutableMap.of("commitment", ImmutableMap.of("id", testCommitments.get(2).getId()),
                             "epochSecond", 64));
 
-    MvcResult result = mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
-                              .andExpect(status().isCreated())
-                              .andReturn();
+    mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
+           .andExpect(status().isCreated())
+           .andReturn();
 
     mockMvc.perform(get("/commitments/" + testCommitments.get(2).getId()))
            .andExpect(status().isOk())
@@ -139,7 +138,7 @@ public class CommitmentClosureControllerTest {
   }
 
   @Test
-  public void testPostCommitmentClosureWhenCommitmentAlreadyClosed() throws Exception {
+  public void shouldRejectCommitmentClosureWhenCommitmentAlreadyClosed() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("commitment", ImmutableMap.of("id", testCommitments.get(0).getId()),
                             "epochSecond", 64));
@@ -150,7 +149,7 @@ public class CommitmentClosureControllerTest {
   }
 
   @Test
-  public void testPostCommitmentWithFieldMissing() throws Exception {
+  public void shouldRejectCommitmentClosureWithFieldMissing() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("commitment", ImmutableMap.of("id", testCommitments.get(2).getId())));
 
@@ -161,15 +160,15 @@ public class CommitmentClosureControllerTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testPostCommitmentWithExtraField() throws Exception {
+  public void shouldIgnoreExtraFieldInCommitmentClosure() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("commitment", ImmutableMap.of("id", testCommitments.get(2).getId()),
                             "epochSecond", 64,
                             "extra", "field"));
 
-    MvcResult result = mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
-                              .andExpect(status().isCreated())
-                              .andReturn();
+    mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
+           .andExpect(status().isCreated())
+           .andReturn();
 
     mockMvc.perform(get("/commitments/" + testCommitments.get(2).getId()))
            .andExpect(status().isOk())
@@ -178,7 +177,7 @@ public class CommitmentClosureControllerTest {
   }
 
   @Test
-  public void testPostCommitmentShouldNotAcceptProvidedId() throws Exception {
+  public void shouldRejectCommitmentClosureWithProvidedId() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("id", 1,
                             "commitment", ImmutableMap.of("id", testCommitments.get(2).getId()),

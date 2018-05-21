@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -22,6 +23,7 @@ public class Transfer extends Identifiable {
   @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private String what;
   @NotNull(groups = {GenericGetPostController.PostValidation.class})
+  @Min(value = 0L, groups = {GenericGetPostController.PostValidation.class})
   private Long amount;
   @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private Long epochSecond;

@@ -86,7 +86,7 @@ public class TransferControllerTest {
   }
 
   @Test
-  public void testGetTransfer() throws Exception {
+  public void shouldGetTransfer() throws Exception {
     mockMvc.perform(get("/transfers/" + testTransfers.get(0).getId()))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
@@ -98,17 +98,9 @@ public class TransferControllerTest {
            .andExpect(jsonPath("$.epochSecond", is(60)));
   }
 
-  @Test
-  public void testGetTransfers() throws Exception {
-    mockMvc.perform(get("/transfers/"))
-           .andExpect(status().isOk())
-           .andExpect(content().contentType(contentType))
-           .andExpect(jsonPath("$.[*].amount", containsInAnyOrder(12345, 543)));
-  }
-
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testPostTransfer() throws Exception {
+  public void shouldPostTransfer() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("from", ImmutableMap.of("id", testAccounts.get(0).getId()),
                             "to", ImmutableMap.of("id", testAccounts.get(1).getId()),
@@ -131,7 +123,15 @@ public class TransferControllerTest {
   }
 
   @Test
-  public void testPostTransferWithFieldMissing() throws Exception {
+  public void shouldGetTransfers() throws Exception {
+    mockMvc.perform(get("/transfers/"))
+           .andExpect(status().isOk())
+           .andExpect(content().contentType(contentType))
+           .andExpect(jsonPath("$.[*].amount", containsInAnyOrder(12345, 543)));
+  }
+
+  @Test
+  public void shouldRejectTransferWithMissingField() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("from", ImmutableMap.of("id", testAccounts.get(0).getId()),
                             "to", ImmutableMap.of("id", testAccounts.get(1).getId()),
@@ -145,7 +145,7 @@ public class TransferControllerTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testPostTransferWithExtraField() throws Exception {
+  public void shouldIgnoreExtraFieldsOnTransfer() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.builder()
                         .put("from", ImmutableMap.of("id", testAccounts.get(0).getId()))
@@ -167,7 +167,7 @@ public class TransferControllerTest {
   }
 
   @Test
-  public void testPostTransferShouldNotAcceptProvidedId() throws Exception {
+  public void shouldRejectTransferWithProvidedId() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.builder()
                         .put("id", 1)
@@ -175,6 +175,23 @@ public class TransferControllerTest {
                         .put("to", ImmutableMap.of("id", testAccounts.get(1).getId()))
                         .put("what", "gift")
                         .put("amount", 777)
+                        .put("epochSecond", 80)
+                        .build());
+
+    mockMvc.perform(post("/transfers/").contentType(contentType).content(json))
+           .andExpect(status().is4xxClientError())
+           .andReturn();
+
+  }
+
+  @Test
+  public void shouldRejectTransferForNegativeAmount() throws Exception {
+    String json = OBJECT_MAPPER.writeValueAsString(
+            ImmutableMap.builder()
+                        .put("from", ImmutableMap.of("id", testAccounts.get(0).getId()))
+                        .put("to", ImmutableMap.of("id", testAccounts.get(1).getId()))
+                        .put("what", "gift")
+                        .put("amount", -100)
                         .put("epochSecond", 80)
                         .build());
 

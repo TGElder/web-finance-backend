@@ -86,7 +86,7 @@ public class CommitmentControllerTest {
   }
 
   @Test
-  public void testGetCommitment() throws Exception {
+  public void shouldGetCommitment() throws Exception {
     mockMvc.perform(get("/commitments/" + testCommitments.get(0).getId()))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
@@ -99,7 +99,7 @@ public class CommitmentControllerTest {
   }
 
   @Test
-  public void testGetCommitments() throws Exception {
+  public void shouldGetCommitments() throws Exception {
     mockMvc.perform(get("/commitments/"))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
@@ -108,7 +108,7 @@ public class CommitmentControllerTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testPostCommitment() throws Exception {
+  public void shouldPostCommitment() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("from", ImmutableMap.of("id", testAccounts.get(0).getId()),
                             "to", ImmutableMap.of("id", testAccounts.get(1).getId()),
@@ -131,7 +131,7 @@ public class CommitmentControllerTest {
   }
 
   @Test
-  public void testPostCommitmentWithFieldMissing() throws Exception {
+  public void shouldRejectCommitmentWithMissingField() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("from", ImmutableMap.of("id", testAccounts.get(0).getId()),
                             "to", ImmutableMap.of("id", testAccounts.get(1).getId()),
@@ -145,7 +145,7 @@ public class CommitmentControllerTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testPostCommitmentWithExtraField() throws Exception {
+  public void shouldIgnoreExtraFieldsInCommitment() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.builder()
                         .put("from", ImmutableMap.of("id", testAccounts.get(0).getId()))
@@ -167,7 +167,7 @@ public class CommitmentControllerTest {
   }
 
   @Test
-  public void testPostCommitmentShouldNotAcceptProvidedId() throws Exception {
+  public void shouldRejectCommitmentWithProvidedId() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.builder()
                         .put("id", 1)
@@ -175,6 +175,23 @@ public class CommitmentControllerTest {
                         .put("to", ImmutableMap.of("id", testAccounts.get(1).getId()))
                         .put("what", "gift")
                         .put("amount", 777)
+                        .put("epochSecond", 80)
+                        .build());
+
+    mockMvc.perform(post("/commitments/").contentType(contentType).content(json))
+           .andExpect(status().is4xxClientError())
+           .andReturn();
+
+  }
+
+  @Test
+  public void shouldRejectCommitmentForNegativeAmount() throws Exception {
+    String json = OBJECT_MAPPER.writeValueAsString(
+            ImmutableMap.builder()
+                        .put("from", ImmutableMap.of("id", testAccounts.get(0).getId()))
+                        .put("to", ImmutableMap.of("id", testAccounts.get(1).getId()))
+                        .put("what", "gift")
+                        .put("amount", -777)
                         .put("epochSecond", 80)
                         .build());
 
