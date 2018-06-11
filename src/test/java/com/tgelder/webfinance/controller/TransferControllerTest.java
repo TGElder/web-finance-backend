@@ -108,7 +108,7 @@ public class TransferControllerTest {
                             "amount", 777,
                             "epochSecond", 80));
 
-    MvcResult result = mockMvc.perform(post("/transfers/").contentType(contentType).content(json))
+    MvcResult result = mockMvc.perform(post("/transfers").contentType(contentType).content(json))
                               .andExpect(status().isCreated())
                               .andReturn();
 
@@ -156,7 +156,7 @@ public class TransferControllerTest {
                         .put("extra", "field")
                         .build());
 
-    MvcResult result = mockMvc.perform(post("/transfers/").contentType(contentType).content(json))
+    MvcResult result = mockMvc.perform(post("/transfers").contentType(contentType).content(json))
                               .andExpect(status().isCreated())
                               .andReturn();
 

@@ -25,12 +25,12 @@ public class GenericGetPostController<T extends Identifiable> {
                           .orElse(ResponseEntity.notFound().build());
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/")
+  @RequestMapping(method = RequestMethod.GET, value = "")
   ResponseEntity<Iterable<T>> getAll() {
     return ResponseEntity.ok(this.repository.findAll());
   }
 
-  @RequestMapping(method = RequestMethod.POST, value = "/")
+  @RequestMapping(method = RequestMethod.POST, value = "")
   ResponseEntity<T> post(@RequestBody @Validated(PostValidation.class) T t) {
     T result = repository.save(t);
     URI location = ServletUriComponentsBuilder

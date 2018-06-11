@@ -90,7 +90,7 @@ public class ReadingControllerTest {
 
   @Test
   public void shouldGetReadings() throws Exception {
-    mockMvc.perform(get("/readings/"))
+    mockMvc.perform(get("/readings"))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
            .andExpect(jsonPath("$.[*].account.name", containsInAnyOrder("savings", "personal")));
@@ -104,7 +104,7 @@ public class ReadingControllerTest {
                             "amount", 1234,
                             "epochSecond", 70));
 
-    MvcResult result = mockMvc.perform(post("/readings/").contentType(contentType).content(json))
+    MvcResult result = mockMvc.perform(post("/readings").contentType(contentType).content(json))
                               .andExpect(status().isCreated())
                               .andReturn();
 
@@ -123,7 +123,7 @@ public class ReadingControllerTest {
             ImmutableMap.of("account", ImmutableMap.of("id", testAccounts.get(0).getId()),
                             "amount", 1234));
 
-    mockMvc.perform(post("/readings/").contentType(contentType).content(json))
+    mockMvc.perform(post("/readings").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
   }
@@ -137,7 +137,7 @@ public class ReadingControllerTest {
                             "epochSecond", 70,
                             "extra", "field"));
 
-    MvcResult result = mockMvc.perform(post("/readings/").contentType(contentType).content(json))
+    MvcResult result = mockMvc.perform(post("/readings").contentType(contentType).content(json))
                               .andExpect(status().isCreated())
                               .andReturn();
 
@@ -155,7 +155,7 @@ public class ReadingControllerTest {
                             "amount", 1234,
                             "epochSecond", 70));
 
-    mockMvc.perform(post("/readings/").contentType(contentType).content(json))
+    mockMvc.perform(post("/readings").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
 

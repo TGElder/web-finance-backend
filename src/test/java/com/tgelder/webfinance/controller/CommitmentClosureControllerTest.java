@@ -127,7 +127,7 @@ public class CommitmentClosureControllerTest {
             ImmutableMap.of("commitment", ImmutableMap.of("id", testCommitments.get(2).getId()),
                             "epochSecond", 64));
 
-    mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
+    mockMvc.perform(post("/commitments/close").contentType(contentType).content(json))
            .andExpect(status().isCreated())
            .andReturn();
 
@@ -143,7 +143,7 @@ public class CommitmentClosureControllerTest {
             ImmutableMap.of("commitment", ImmutableMap.of("id", testCommitments.get(0).getId()),
                             "epochSecond", 64));
 
-    mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
+    mockMvc.perform(post("/commitments/close").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
   }
@@ -153,7 +153,7 @@ public class CommitmentClosureControllerTest {
     String json = OBJECT_MAPPER.writeValueAsString(
             ImmutableMap.of("commitment", ImmutableMap.of("id", testCommitments.get(2).getId())));
 
-    mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
+    mockMvc.perform(post("/commitments/close").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
   }
@@ -166,7 +166,7 @@ public class CommitmentClosureControllerTest {
                             "epochSecond", 64,
                             "extra", "field"));
 
-    mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
+    mockMvc.perform(post("/commitments/close").contentType(contentType).content(json))
            .andExpect(status().isCreated())
            .andReturn();
 
@@ -184,7 +184,7 @@ public class CommitmentClosureControllerTest {
                             "epochSecond", 64));
 
 
-    mockMvc.perform(post("/commitments/close/").contentType(contentType).content(json))
+    mockMvc.perform(post("/commitments/close").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
 

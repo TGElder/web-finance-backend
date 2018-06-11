@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @Slf4j
 public class App {
 
+
   public static void main(String[] args) {
     SpringApplication.run(App.class, args);
   }

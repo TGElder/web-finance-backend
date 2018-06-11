@@ -100,7 +100,7 @@ public class CommitmentControllerTest {
 
   @Test
   public void shouldGetCommitments() throws Exception {
-    mockMvc.perform(get("/commitments/"))
+    mockMvc.perform(get("/commitments"))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
            .andExpect(jsonPath("$.[*].amount", containsInAnyOrder(12345, 543)));
@@ -116,7 +116,7 @@ public class CommitmentControllerTest {
                             "amount", 777,
                             "epochSecond", 80));
 
-    MvcResult result = mockMvc.perform(post("/commitments/").contentType(contentType).content(json))
+    MvcResult result = mockMvc.perform(post("/commitments").contentType(contentType).content(json))
                               .andExpect(status().isCreated())
                               .andReturn();
 
@@ -138,7 +138,7 @@ public class CommitmentControllerTest {
                             "amount", 777,
                             "epochSecond", 80));
 
-    mockMvc.perform(post("/commitments/").contentType(contentType).content(json))
+    mockMvc.perform(post("/commitments").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
   }
@@ -156,7 +156,7 @@ public class CommitmentControllerTest {
                         .put("extra", "field")
                         .build());
 
-    MvcResult result = mockMvc.perform(post("/commitments/").contentType(contentType).content(json))
+    MvcResult result = mockMvc.perform(post("/commitments").contentType(contentType).content(json))
                               .andExpect(status().isCreated())
                               .andReturn();
 
@@ -178,7 +178,7 @@ public class CommitmentControllerTest {
                         .put("epochSecond", 80)
                         .build());
 
-    mockMvc.perform(post("/commitments/").contentType(contentType).content(json))
+    mockMvc.perform(post("/commitments").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
 

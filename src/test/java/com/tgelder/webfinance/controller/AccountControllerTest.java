@@ -77,7 +77,7 @@ public class AccountControllerTest {
 
   @Test
   public void shouldGetAccounts() throws Exception {
-    mockMvc.perform(get("/accounts/"))
+    mockMvc.perform(get("/accounts"))
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
            .andExpect(jsonPath("$.[*].name", containsInAnyOrder("savings", "personal")));
@@ -102,7 +102,7 @@ public class AccountControllerTest {
   public void shouldRejectAccountWithMissingFields() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of("other", "field"));
 
-    mockMvc.perform(post("/accounts/").contentType(contentType).content(json))
+    mockMvc.perform(post("/accounts").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
   }
@@ -112,7 +112,7 @@ public class AccountControllerTest {
   public void shouldIgnoreExtraFieldsInAccount() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of("name", "new", "extra", "field"));
 
-    MvcResult result = mockMvc.perform(post("/accounts/").contentType(contentType).content(json))
+    MvcResult result = mockMvc.perform(post("/accounts").contentType(contentType).content(json))
                               .andExpect(status().isCreated())
                               .andReturn();
 
@@ -126,7 +126,7 @@ public class AccountControllerTest {
   public void shouldNotAcceptAccountWithProvidedId() throws Exception {
     String json = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of("id", 1, "name", "new"));
 
-    mockMvc.perform(post("/accounts/").contentType(contentType).content(json))
+    mockMvc.perform(post("/accounts").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
 
