@@ -139,8 +139,7 @@ public class CommitmentControllerTest {
                             "epochSecond", 80));
 
     mockMvc.perform(post("/commitments").contentType(contentType).content(json))
-           .andExpect(status().is4xxClientError())
-           .andReturn();
+           .andExpect(status().is4xxClientError());
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -179,9 +178,7 @@ public class CommitmentControllerTest {
                         .build());
 
     mockMvc.perform(post("/commitments").contentType(contentType).content(json))
-           .andExpect(status().is4xxClientError())
-           .andReturn();
-
+           .andExpect(status().is4xxClientError());
   }
 
   @Test
@@ -195,10 +192,39 @@ public class CommitmentControllerTest {
                         .put("epochSecond", 80)
                         .build());
 
-    mockMvc.perform(post("/commitments/").contentType(contentType).content(json))
-           .andExpect(status().is4xxClientError())
-           .andReturn();
+    mockMvc.perform(post("/commitments").contentType(contentType).content(json))
+           .andExpect(status().is4xxClientError());
+  }
 
+  @Test
+  public void shouldGetTransfersForAccount() throws Exception {
+    Account house = new Account("House");
+    house = accountRepository.save(house);
+    commitmentRepository.save(new Commitment(testAccounts.get(1), house, "upkeep", 707L, 808L));
+
+    mockMvc.perform(get("/commitments?account=" + testAccounts.get(0).getId().toString()))
+           .andExpect(status().isOk())
+           .andExpect(content().contentType(contentType))
+           .andExpect(jsonPath("$.[*].what", containsInAnyOrder("holiday", "bonus")));
+
+    mockMvc.perform(get("/commitments?account=" + testAccounts.get(1).getId().toString()))
+           .andExpect(status().isOk())
+           .andExpect(content().contentType(contentType))
+           .andExpect(jsonPath("$.[*].what", containsInAnyOrder("holiday", "bonus", "upkeep")));
+
+    mockMvc.perform(get("/commitments?account=" + house.getId().toString()))
+           .andExpect(status().isOk())
+           .andExpect(content().contentType(contentType))
+           .andExpect(jsonPath("$.[*].what", containsInAnyOrder("upkeep")));
+  }
+
+  @Test
+  public void shouldNotGetTransfersForNonexistentAccount() throws Exception {
+    Account house = new Account("House");
+    accountRepository.save(house);
+
+    mockMvc.perform(get("/commitments?account=7000"))
+           .andExpect(status().isNotFound());
   }
 
 

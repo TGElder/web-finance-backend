@@ -32,7 +32,7 @@ public class GenericGetPostController<T extends Identifiable> {
 
   @RequestMapping(method = RequestMethod.POST, value = "")
   ResponseEntity<T> post(@RequestBody @Validated(PostValidation.class) T t) {
-    T result = repository.save(t);
+    repository.save(t);
     URI location = ServletUriComponentsBuilder
             .fromCurrentRequest().path("/{id}")
             .buildAndExpand(t.getId()).toUri();
