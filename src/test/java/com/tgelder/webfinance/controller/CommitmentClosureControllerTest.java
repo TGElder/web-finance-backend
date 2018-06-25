@@ -128,8 +128,7 @@ public class CommitmentClosureControllerTest {
                             "epochSecond", 64));
 
     mockMvc.perform(post("/commitments/close").contentType(contentType).content(json))
-           .andExpect(status().isCreated())
-           .andReturn();
+           .andExpect(status().isCreated());
 
     mockMvc.perform(get("/commitments/" + testCommitments.get(2).getId()))
            .andExpect(status().isOk())
@@ -144,8 +143,7 @@ public class CommitmentClosureControllerTest {
                             "epochSecond", 64));
 
     mockMvc.perform(post("/commitments/close").contentType(contentType).content(json))
-           .andExpect(status().is4xxClientError())
-           .andReturn();
+           .andExpect(status().is4xxClientError());
   }
 
   @Test
@@ -154,8 +152,7 @@ public class CommitmentClosureControllerTest {
             ImmutableMap.of("commitment", ImmutableMap.of("id", testCommitments.get(2).getId())));
 
     mockMvc.perform(post("/commitments/close").contentType(contentType).content(json))
-           .andExpect(status().is4xxClientError())
-           .andReturn();
+           .andExpect(status().is4xxClientError());
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -167,8 +164,7 @@ public class CommitmentClosureControllerTest {
                             "extra", "field"));
 
     mockMvc.perform(post("/commitments/close").contentType(contentType).content(json))
-           .andExpect(status().isCreated())
-           .andReturn();
+           .andExpect(status().isCreated());
 
     mockMvc.perform(get("/commitments/" + testCommitments.get(2).getId()))
            .andExpect(status().isOk())
@@ -185,8 +181,7 @@ public class CommitmentClosureControllerTest {
 
 
     mockMvc.perform(post("/commitments/close").contentType(contentType).content(json))
-           .andExpect(status().is4xxClientError())
-           .andReturn();
+           .andExpect(status().is4xxClientError());
 
   }
 

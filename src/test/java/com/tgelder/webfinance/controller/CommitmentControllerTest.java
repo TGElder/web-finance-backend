@@ -6,7 +6,9 @@ import com.google.common.collect.ImmutableMap;
 import com.tgelder.webfinance.App;
 import com.tgelder.webfinance.model.Account;
 import com.tgelder.webfinance.model.Commitment;
+import com.tgelder.webfinance.model.CommitmentClosure;
 import com.tgelder.webfinance.persistence.AccountRepository;
+import com.tgelder.webfinance.persistence.CommitmentClosureRepository;
 import com.tgelder.webfinance.persistence.CommitmentRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -25,8 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -43,6 +44,8 @@ public class CommitmentControllerTest {
   private AccountRepository accountRepository;
   @Autowired
   private CommitmentRepository commitmentRepository;
+  @Autowired
+  private CommitmentClosureRepository commitmentClosureRepository;
 
   private MockMvc mockMvc;
 
@@ -81,6 +84,7 @@ public class CommitmentControllerTest {
 
   @After
   public void tearDown() {
+    commitmentClosureRepository.deleteAll();
     commitmentRepository.deleteAll();
     accountRepository.deleteAll();
   }
@@ -197,7 +201,7 @@ public class CommitmentControllerTest {
   }
 
   @Test
-  public void shouldGetTransfersForAccount() throws Exception {
+  public void shouldGetCommitmentsForAccount() throws Exception {
     Account house = new Account("House");
     house = accountRepository.save(house);
     commitmentRepository.save(new Commitment(testAccounts.get(1), house, "upkeep", 707L, 808L));
@@ -219,12 +223,90 @@ public class CommitmentControllerTest {
   }
 
   @Test
-  public void shouldNotGetTransfersForNonexistentAccount() throws Exception {
+  public void shouldNotGetCommitmentsForNonexistentAccount() throws Exception {
     Account house = new Account("House");
     accountRepository.save(house);
 
     mockMvc.perform(get("/commitments?account=7000"))
            .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void shouldGetOpenCommitments() throws Exception {
+    Account house = new Account("House");
+    house = accountRepository.save(house);
+    Commitment commitment = commitmentRepository.save(new Commitment(testAccounts.get(1), house, "upkeep", 707L, 808L));
+    closeCommitment(commitment);
+
+    mockMvc.perform(get("/commitments?closed=false"))
+           .andExpect(status().isOk())
+           .andExpect(content().contentType(contentType))
+           .andExpect(jsonPath("$.[*].what", containsInAnyOrder("holiday", "bonus")));
+  }
+
+  @Test
+  public void shouldGetClosedCommitments() throws Exception {
+    Account house = new Account("House");
+    house = accountRepository.save(house);
+    Commitment commitment = commitmentRepository.save(new Commitment(testAccounts.get(1), house, "upkeep", 707L, 808L));
+    closeCommitment(commitment);
+
+    mockMvc.perform(get("/commitments?closed=true"))
+           .andExpect(status().isOk())
+           .andExpect(content().contentType(contentType))
+           .andExpect(jsonPath("$.[*].what", containsInAnyOrder("upkeep")));
+  }
+
+  @Test
+  public void shouldGetOpenCommitmentsForAccount() throws Exception {
+    Account house = new Account("House");
+    house = accountRepository.save(house);
+    Commitment commitment = commitmentRepository.save(new Commitment(testAccounts.get(1), house, "upkeep", 707L, 808L));
+    closeCommitment(commitment);
+
+    mockMvc.perform(get("/commitments?account=" + testAccounts.get(0).getId().toString() + "&closed=false"))
+           .andExpect(status().isOk())
+           .andExpect(content().contentType(contentType))
+           .andExpect(jsonPath("$.[*].what", containsInAnyOrder("holiday", "bonus")));
+
+    mockMvc.perform(get("/commitments?account=" + testAccounts.get(1).getId().toString() + "&closed=false"))
+           .andExpect(status().isOk())
+           .andExpect(content().contentType(contentType))
+           .andExpect(jsonPath("$.[*].what", containsInAnyOrder("holiday", "bonus")));
+
+    mockMvc.perform(get("/commitments?account=" + house.getId().toString() + "&closed=false"))
+           .andExpect(status().isOk())
+           .andExpect(content().contentType(contentType))
+           .andExpect(jsonPath("$.[*].what", empty()));
+  }
+
+  @Test
+  public void shouldGetClosedCommitmentsForAccount() throws Exception {
+    Account house = new Account("House");
+    house = accountRepository.save(house);
+    Commitment commitment = commitmentRepository.save(new Commitment(testAccounts.get(1), house, "upkeep", 707L, 808L));
+    closeCommitment(commitment);
+
+    mockMvc.perform(get("/commitments?account=" + testAccounts.get(0).getId().toString() + "&closed=true"))
+           .andExpect(status().isOk())
+           .andExpect(content().contentType(contentType))
+           .andExpect(jsonPath("$.[*].what", empty()));
+
+    mockMvc.perform(get("/commitments?account=" + testAccounts.get(1).getId().toString() + "&closed=true"))
+           .andExpect(status().isOk())
+           .andExpect(content().contentType(contentType))
+           .andExpect(jsonPath("$.[*].what", containsInAnyOrder("upkeep")));
+
+    mockMvc.perform(get("/commitments?account=" + house.getId().toString() + "&closed=true"))
+           .andExpect(status().isOk())
+           .andExpect(content().contentType(contentType))
+           .andExpect(jsonPath("$.[*].what", containsInAnyOrder("upkeep")));
+  }
+
+  private void closeCommitment(Commitment commitment) {
+    CommitmentClosure closure = new CommitmentClosure(commitment, 0L);
+    commitment.setClosure(closure);
+    commitmentClosureRepository.save(closure);
   }
 
 
