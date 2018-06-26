@@ -13,7 +13,6 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode(callSuper = true)
 public class Transfer extends Transaction {
 
-
   @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private String what;
   @NotNull(groups = {GenericGetPostController.PostValidation.class})

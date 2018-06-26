@@ -5,12 +5,20 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 @Entity
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class Account extends Identifiable {
+public class Account implements Identifiable {
+
+  @Id
+  @GeneratedValue(strategy= GenerationType.IDENTITY)
+  @Null(groups = {GenericGetPostController.PostValidation.class})
+  private Long id;
 
   @NotNull(groups = {GenericGetPostController.PostValidation.class})
   private String name;
