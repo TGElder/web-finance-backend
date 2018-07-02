@@ -2,7 +2,6 @@ package com.tgelder.webfinance.model;
 
 import com.tgelder.webfinance.controller.GenericGetPostController;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

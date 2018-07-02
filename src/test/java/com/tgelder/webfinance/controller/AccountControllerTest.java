@@ -5,7 +5,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.tgelder.webfinance.App;
 import com.tgelder.webfinance.model.Account;
+import com.tgelder.webfinance.model.Transfer;
 import com.tgelder.webfinance.persistence.AccountRepository;
+import com.tgelder.webfinance.persistence.TransferRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +41,9 @@ public class AccountControllerTest {
   @Autowired
   private AccountRepository accountRepository;
 
+  @Autowired
+  private TransferRepository transferRepository;
+
   private MockMvc mockMvc;
 
   @Autowired
@@ -55,14 +60,24 @@ public class AccountControllerTest {
           new Account("personal")
   );
 
+  private Transfer testTransfer = new Transfer(
+          testAccounts.get(0),
+          testAccounts.get(1),
+          "transfer",
+          12345L,
+          60L
+  );
+
   @Before
   public void setup() {
     mockMvc = webAppContextSetup(webApplicationContext).build();
     accountRepository.saveAll(testAccounts);
+    transferRepository.save(testTransfer);
   }
 
   @After
   public void tearDown() {
+    transferRepository.deleteAll();
     accountRepository.deleteAll();
   }
 
@@ -72,7 +87,13 @@ public class AccountControllerTest {
            .andExpect(status().isOk())
            .andExpect(content().contentType(contentType))
            .andExpect(jsonPath("$.id", is(testAccounts.get(0).getId().intValue())))
-           .andExpect(jsonPath("$.name", is("savings")));
+           .andExpect(jsonPath("$.name", is("savings")))
+           .andExpect(jsonPath("$.balance.lastReading", is(0)))
+           .andExpect(jsonPath("$.balance.transfersIn", is(0)))
+           .andExpect(jsonPath("$.balance.transfersOut", is(12345)))
+           .andExpect(jsonPath("$.balance.commitmentsIn", is(0)))
+           .andExpect(jsonPath("$.balance.commitmentsOut", is(0)))
+           .andExpect(jsonPath("$.balance.total", is(-12345)));
   }
 
   @Test
@@ -129,8 +150,7 @@ public class AccountControllerTest {
     mockMvc.perform(post("/accounts").contentType(contentType).content(json))
            .andExpect(status().is4xxClientError())
            .andReturn();
-
   }
 
-
 }
+

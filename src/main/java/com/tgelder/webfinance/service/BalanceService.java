@@ -32,7 +32,7 @@ public class BalanceService {
   @Autowired
   private CommitmentRepository commitmentRepository;
 
-  public Map<Account, Long> getAllBalances() {
+  public Map<Account, Balance> getAllBalances() {
 
     Iterable<Account> accounts = accountRepository.findAll();
 
@@ -44,11 +44,12 @@ public class BalanceService {
 
     return StreamSupport.stream(accounts.spliterator(), false)
                         .collect(Collectors.toMap(account -> account,
-                                                  account -> latestReadings.getOrDefault(account, 0L)
-                                                          - transfersFrom.getOrDefault(account, 0L)
-                                                          + transfersTo.getOrDefault(account, 0L)
-                                                          - commitmentsFrom.getOrDefault(account, 0L)
-                                                          + commitmentsTo.getOrDefault(account, 0L)
+                                                  account -> new Balance(
+                                                          latestReadings.getOrDefault(account, 0L),
+                                                          transfersTo.getOrDefault(account, 0L),
+                                                          transfersFrom.getOrDefault(account, 0L),
+                                                          commitmentsTo.getOrDefault(account, 0L),
+                                                          commitmentsFrom.getOrDefault(account, 0L))
                         ));
   }
 

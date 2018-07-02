@@ -51,78 +51,92 @@ public class BalanceServiceTest {
 
   @Test
   public void noReadingShouldBeTreatedZero() {
-    assertThat(balanceService.getAllBalances().get(account)).isEqualTo(0L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isEqualTo(0L);
   }
 
   @Test
   public void readingShouldAddToBalance() {
     readingRepository.save(new Reading(account, 100L, 0L));
-    assertThat(balanceService.getAllBalances().get(account)).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getLastReading()).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isEqualTo(100L);
   }
 
   @Test
   public void shouldOnlyUseLatestReading() {
     readingRepository.save(new Reading(account, 100L, 0L));
     readingRepository.save(new Reading(account, 101L, 1L));
-    assertThat(balanceService.getAllBalances().get(account)).isEqualTo(101L);
+    assertThat(balanceService.getAllBalances().get(account).getLastReading()).isEqualTo(101L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isEqualTo(101L);
   }
 
   @Test
   public void shouldChooseRandomlyIfTieForLatest() {
     readingRepository.save(new Reading(account, 100L, 0L));
     readingRepository.save(new Reading(account, 101L, 0L));
-    assertThat(balanceService.getAllBalances().get(account)).isIn(100L, 101L);
+    assertThat(balanceService.getAllBalances().get(account).getLastReading()).isIn(100L, 101L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isIn(100L, 101L);
   }
 
   @Test
   public void transferToShouldAddToBalance() {
     transferRepository.save(new Transfer(other, account, "in", 100L, 0L));
-    assertThat(balanceService.getAllBalances().get(account)).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getTransfersIn()).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isEqualTo(100L);
   }
 
   @Test
   public void transferFromShouldSubtractFromBalance() {
     transferRepository.save(new Transfer(account, other, "out", 100L, 0L));
-    assertThat(balanceService.getAllBalances().get(account)).isEqualTo(-100L);
+    assertThat(balanceService.getAllBalances().get(account).getTransfersOut()).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isEqualTo(-100L);
   }
 
   @Test
   public void transfersShouldCumulate() {
     transferRepository.save(new Transfer(other, account, "in", 100L, 0L));
     transferRepository.save(new Transfer(account, another, "out", 25L, 0L));
-    assertThat(balanceService.getAllBalances().get(account)).isEqualTo(75L);
+    assertThat(balanceService.getAllBalances().get(account).getTransfersIn()).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getTransfersOut()).isEqualTo(25L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isEqualTo(75L);
   }
 
   @Test
   public void transferToSelfShouldCancelOut() {
     transferRepository.save(new Transfer(account, account, "self", 100L, 0L));
-    assertThat(balanceService.getAllBalances().get(account)).isEqualTo(0L);
+    assertThat(balanceService.getAllBalances().get(account).getTransfersIn()).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getTransfersOut()).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isEqualTo(0L);
   }
 
   @Test
   public void openCommitmentToShouldAddToBalance() {
     commitmentRepository.save(new Commitment(other, account, "in", 100L, 0L));
-    assertThat(balanceService.getAllBalances().get(account)).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getCommitmentsIn()).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isEqualTo(100L);
   }
 
   @Test
   public void openCommitmentFromShouldSubtractFromBalance() {
     commitmentRepository.save(new Commitment(account, other, "out", 100L, 0L));
-    assertThat(balanceService.getAllBalances().get(account)).isEqualTo(-100L);
+    assertThat(balanceService.getAllBalances().get(account).getCommitmentsOut()).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isEqualTo(-100L);
   }
 
   @Test
   public void openCommitmentsShouldCumulate() {
     commitmentRepository.save(new Commitment(other, account, "in", 100L, 0L));
     commitmentRepository.save(new Commitment(account, another, "out", 25L, 0L));
-    assertThat(balanceService.getAllBalances().get(account)).isEqualTo(75L);
+    assertThat(balanceService.getAllBalances().get(account).getCommitmentsIn()).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getCommitmentsOut()).isEqualTo(25L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isEqualTo(75L);
   }
 
   @Test
   public void closedCommitmentsShouldHaveNoAffect() {
     Commitment commitment = commitmentRepository.save(new Commitment(other, account, "in", 100L, 0L));
     commitmentClosureRepository.save(new CommitmentClosure(commitment, 0L));
-    assertThat(balanceService.getAllBalances().get(account)).isEqualTo(0L);
+    assertThat(balanceService.getAllBalances().get(account).getCommitmentsIn()).isEqualTo(0L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isEqualTo(0L);
   }
 
   @Test
@@ -135,7 +149,12 @@ public class BalanceServiceTest {
     Commitment commitment = commitmentRepository.save(new Commitment(account, another, "out", 3L, 5L));
     commitmentRepository.save(commitment);
     commitmentClosureRepository.save(new CommitmentClosure(commitment, 6L));
-    assertThat(balanceService.getAllBalances().get(account)).isEqualTo(2085L);
+    assertThat(balanceService.getAllBalances().get(account).getLastReading()).isEqualTo(2000L);
+    assertThat(balanceService.getAllBalances().get(account).getTransfersIn()).isEqualTo(100L);
+    assertThat(balanceService.getAllBalances().get(account).getTransfersOut()).isEqualTo(25L);
+    assertThat(balanceService.getAllBalances().get(account).getCommitmentsIn()).isEqualTo(10L);
+    assertThat(balanceService.getAllBalances().get(account).getCommitmentsOut()).isEqualTo(0L);
+    assertThat(balanceService.getAllBalances().get(account).getTotal()).isEqualTo(2085L);
   }
 
 
