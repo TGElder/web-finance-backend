@@ -48,6 +48,11 @@
             <artifactId>guava</artifactId>
             <version>25.0-jre</version>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.4-1206-jdbc42</version>
+        </dependency>
     </dependencies>
 
     <properties>
